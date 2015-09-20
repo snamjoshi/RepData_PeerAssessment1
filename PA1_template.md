@@ -303,5 +303,3 @@ g + facet_wrap(~ Day, ncol = 1)
 ![](PA1_template_files/figure-html/unnamed-chunk-20-1.png) 
 
 As we can see from the graph, there are indeed differences in activity patterns between the weekday and weekend.
-
-? knit2html()
