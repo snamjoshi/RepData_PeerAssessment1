@@ -1,11 +1,6 @@
----
-title: "Peer Assessment 1 for Coursera Data Science Course 5 (Reproducible Research)"
-author: "Sanjeev V Namjoshi"
-date: "September 20th, 2015"
-output: 
-  html_document: 
-    keep_md: yes
----
+# Peer Assessment 1 for Coursera Data Science Course 5 (Reproducible Research)
+Sanjeev V Namjoshi  
+September 20th, 2015  
 
 Peer assessment 1 requires that we take activity monitoring data from personal movement
 monitoring devices and perform a number of required analyses on these data. The aim of
@@ -23,7 +18,8 @@ There are 3 variables in this data set:
 ### Loading and preprocessing the data
 #### 1. Load packages and load the data (i.e. `read.csv()`) from working directory
 
-```{r, message = FALSE}
+
+```r
 library(ggplot2)
 library(dplyr)
 
@@ -34,7 +30,8 @@ data <- read.csv("activity.csv", header = TRUE)
 
 First, Change "date" column from class factor to class date
 
-```{r}
+
+```r
 data$date <- as.Date(data$date)
 ```
 ### What is mean total number of steps taken per day?
@@ -42,13 +39,19 @@ data$date <- as.Date(data$date)
 
 Simply use the sum function on the steps variable to calculate the total number of steps per day. We need to remove NA values for this function to work.
 
-```{r}
+
+```r
 sum(data$steps, na.rm = TRUE)
+```
+
+```
+## [1] 570608
 ```
 
 #### 2. Make a histogram of the total number of steps taken each day.
 
-```{r}
+
+```r
 ggplot(data, aes(x = steps)) +
 	geom_bar(binwidth = 30) +
 	ggtitle("Mean Total Steps Per Day") +
@@ -57,13 +60,27 @@ ggplot(data, aes(x = steps)) +
 	theme_bw()
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
+
 #### 3. Calculate and report the mean and median of the total number of steps taken per day.
 
 Calculating the mean and median is similar to calculating the sum. We are simply computing the values over ALL steps.
 
-```{r}
+
+```r
 mean(data$steps, na.rm = TRUE)
+```
+
+```
+## [1] 37.3826
+```
+
+```r
 median(data$step, na.rm = TRUE)
+```
+
+```
+## [1] 0
 ```
 
 ### What is the average daily activity pattern?
@@ -73,7 +90,8 @@ To plot the 5 minute interval v. the average number of steps taken across all da
 
 Note that the factors must be ordered properly for ggplot to graph it.
 
-```{r}
+
+```r
 # First, split the data by 5-minute interval
 splitInterval <- split(data, data$interval)
 
@@ -92,12 +110,20 @@ ggplot(meanInterval, aes(x = Interval, y = MeanSteps, group = 1)) +
 	theme_bw()
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png) 
+
 #### 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
 To determine this, we need to subset on the data frame to find the row with the max number of mean steps. Returning the "Interval" column then gives the corresponding interval that had the max number of mean steps.
 
-```{r}
+
+```r
 meanInterval[meanInterval$MeanSteps == max(meanInterval$MeanSteps), "Interval"]
+```
+
+```
+## [1] 835
+## 288 Levels: 0 5 10 15 20 25 30 35 40 45 50 55 100 105 110 115 120 ... 2355
 ```
 
 ### Imputing missing values
@@ -105,8 +131,13 @@ meanInterval[meanInterval$MeanSteps == max(meanInterval$MeanSteps), "Interval"]
 
 The `complete.cases` function returns `TRUE` if there are no NAs in a particular row. The negation of this will thus tell us if that row has an NA or not. By taking the sum of this logical vector we can determine the total number of NAs in the data set.
 
-```{r}
+
+```r
 sum(!complete.cases(data$steps))
+```
+
+```
+## [1] 2304
 ```
 
 #### 2. Devise a strategy for filling in all of the missing values in the dataset.
@@ -115,7 +146,8 @@ To impute NA values we can use the mean steps for that 5 minute interval across 
 
 The impute function will accomplish this task.
 
-```{r}
+
+```r
 impute <- function(interval) {
 	# Determine which rows have an NA
 	naRows <- which(is.na(interval$steps))  
@@ -138,20 +170,23 @@ impute <- function(interval) {
 #### 3. Create a new dataset that is equal to the original dataset but with the missing data filled in.
 
 Now, we can apply the impute function to our data set.
-```{r}
+
+```r
 dataImpute <- lapply(splitInterval, impute)
 ```
 
 Get the data back into the original format. First we will bind all the rows of the imputed list together. Then, using the `dplyr` function `arrange()` we can sort the data set by date to put it into the format it came in originally.
 
-```{r}
+
+```r
 dataImpute <- do.call(rbind, dataImpute)
 dataImpute <- arrange(dataImpute, date)
 ```
 
 #### 4. Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day.
 
-```{r}
+
+```r
 ggplot(dataImpute, aes(x = steps)) +
 	geom_bar(binwidth = 30) +
 	ggtitle("Mean Total Steps Per Day") +
@@ -160,11 +195,25 @@ ggplot(dataImpute, aes(x = steps)) +
 	theme_bw()
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-12-1.png) 
+
 #### Calculate and report the mean and median total number of steps taken per day.
 
-```{r}
+
+```r
 mean(dataImpute$steps)
+```
+
+```
+## [1] 37.3826
+```
+
+```r
 median(dataImpute$steps)
+```
+
+```
+## [1] 0
 ```
 
 #### Do these values differ from the estimates from the first part of the assignment?
@@ -173,8 +222,13 @@ No. They are identical. This is not too surprising considering the small percent
 
 #### What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
-```{r}
+
+```r
 sum(dataImpute$steps)
+```
+
+```
+## [1] 656737.5
 ```
 
 As we can see, this is much higher than the daily steps for the data set before imputing. This is clearly expected because we have added in more steps for days which previously had no data.
@@ -184,13 +238,15 @@ As we can see, this is much higher than the daily steps for the data set before 
 
 The `weekend()` function tells us the day of the week for each date. The `%in%` operator returns a logical vector if the day is equal to "Saturday" or "Sunday". 
 
-```{r}
+
+```r
 dataImpute <- cbind(dataImpute, Weekend = factor(weekdays(dataImpute$date) %in% c("Saturday", "Sunday")))
 ```
 
 Next, we split the data frame by TRUE (weekend) or FALSE (weekday).
 
-```{r}
+
+```r
 weekend <- split(dataImpute, dataImpute$Weekend)$'TRUE'
 weekday <- split(dataImpute, dataImpute$Weekend)$'FALSE'
 ```
@@ -199,7 +255,8 @@ The next question is going to ask us to graph the data. To get the data into the
 
 This function calculate the mean 5-minute interval, sets the column names, then orders the factor levels.
 
-```{r}
+
+```r
 meanStepAcrossIntervals <- function(day) {
 	splitInterval <- split(day, day$interval)
 	meanInterval <- stack(lapply(splitInterval, function(x) mean(x$steps, na.rm = TRUE)))
@@ -212,14 +269,16 @@ meanStepAcrossIntervals <- function(day) {
 
 Now, apply the function to our weekend and weekday split data sets:
 
-```{r}
+
+```r
 weekendMean <- meanStepAcrossIntervals(weekend)
 weekdayMean <- meanStepAcrossIntervals(weekday)
 ```
 
 And, finally, let's put everything together into one dataset and label the last column as "Day" to indicate if it's a weekday or weekend. This fulfills what was asked in question 1 of this section.
 
-```{r}
+
+```r
 allDays <- rbind(weekdayMean, weekendMean)
 allDays <- cbind(allDays, Day = c(rep("Weekday",288), rep("Weekend",288)))
 ```
@@ -228,7 +287,8 @@ allDays <- cbind(allDays, Day = c(rep("Weekday",288), rep("Weekend",288)))
 
 To make the planel plot we can just graph the data (similar to the earlier question) and then at a facet element to the plot split by the "Day" variable indicating the weekday or weekend.
 
-```{r}
+
+```r
 g <- ggplot(allDays, aes(x = Interval, y = MeanSteps, group = 1)) +
 	geom_line() +
 	scale_x_discrete(breaks = seq(0,2355, by = 200))+
@@ -239,6 +299,8 @@ g <- ggplot(allDays, aes(x = Interval, y = MeanSteps, group = 1)) +
 
 g + facet_wrap(~ Day, ncol = 1)
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-20-1.png) 
 
 As we can see from the graph, there are indeed differences in activity patterns between the weekday and weekend.
 
